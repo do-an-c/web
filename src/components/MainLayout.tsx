@@ -14,6 +14,8 @@ import {
   SettingOutlined,
   CheckCircleOutlined,
   BarChartOutlined,
+  ShopOutlined,
+  StarOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
@@ -48,6 +50,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         key: 'poi',
         icon: <EnvironmentOutlined />,
         label: 'Quản lý POI',
+      },
+      {
+        key: 'menu',
+        icon: <ShopOutlined />,
+        label: 'Thực đơn',
+      },
+      {
+        key: 'reviews',
+        icon: <StarOutlined />,
+        label: 'Đánh giá',
       },
       {
         key: 'narration',

@@ -82,3 +82,37 @@ export interface LocationUpdate {
   accuracy: number;
   timestamp: string;
 }
+
+export interface MenuItem {
+  id: number;
+  poiId: number;
+  name: string;
+  description?: string;
+  price: number;
+  imageUrl?: string;
+  isAvailable: boolean;
+}
+
+export interface CreateMenuItem {
+  name: string;
+  description?: string;
+  price: number;
+  imageUrl?: string;
+  isAvailable?: boolean;
+}
+
+export interface Review {
+  id: number;
+  poiId: number;
+  poiName: string;
+  userName: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+}
+
+export interface CreateReview {
+  userName?: string;
+  rating: number;
+  comment?: string;
+}

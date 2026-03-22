@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { POI, CreatePOI, UpdatePOI, Narration, LocationUpdate } from '../types';
+import type { POI, CreatePOI, UpdatePOI, Narration, LocationUpdate, MenuItem, CreateMenuItem, Review, CreateReview } from '../types';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -29,7 +29,6 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear auth data and redirect to login
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
       window.location.href = '/login';
@@ -112,6 +111,32 @@ export const ttsApi = {
   
   checkAudio: (audioUrl: string) => 
     axiosInstance.get('/TTS/check-audio', { params: { audioUrl } }),
+};
+
+// Menu API
+export const menuApi = {
+  getByPOI: (poiId: number) => axiosInstance.get<MenuItem[]>(`/pois/${poiId}/menu`),
+  
+  getAll: () => axiosInstance.get<MenuItem[]>('/menu'),
+  
+  create: (poiId: number, data: CreateMenuItem) => axiosInstance.post<MenuItem>(`/pois/${poiId}/menu`, data),
+  
+  update: (id: number, data: Partial<CreateMenuItem>) => axiosInstance.put<MenuItem>(`/menu/${id}`, data),
+  
+  delete: (id: number) => axiosInstance.delete(`/menu/${id}`),
+};
+
+// Review API
+export const reviewApi = {
+  getByPOI: (poiId: number) => axiosInstance.get<Review[]>(`/pois/${poiId}/reviews`),
+  
+  getAll: () => axiosInstance.get<Review[]>('/reviews'),
+  
+  create: (poiId: number, data: CreateReview) => axiosInstance.post<Review>(`/pois/${poiId}/reviews`, data),
+  
+  delete: (id: number) => axiosInstance.delete(`/reviews/${id}`),
+  
+  getSummary: (poiId: number) => axiosInstance.get(`/pois/${poiId}/reviews/summary`),
 };
 
 export default axiosInstance;

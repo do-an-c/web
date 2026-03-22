@@ -12,6 +12,8 @@ import NarrationHistory from './pages/NarrationHistory';
 import TTSGenerator from './pages/TTSGenerator';
 import ApprovalManagement from './pages/ApprovalManagement';
 import Analytics from './pages/Analytics';
+import MenuManagement from './pages/MenuManagement';
+import ReviewManagement from './pages/ReviewManagement';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -51,6 +53,28 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <POIManagement />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/menu"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <MenuManagement />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/reviews"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <ReviewManagement />
                     </MainLayout>
                   </ProtectedRoute>
                 }
