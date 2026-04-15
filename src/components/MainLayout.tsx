@@ -5,17 +5,18 @@ import { useAuth } from '../contexts/AuthContext';
 import {
   DashboardOutlined,
   EnvironmentOutlined,
-  SoundOutlined,
   TranslationOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
   LogoutOutlined,
   SettingOutlined,
-  CheckCircleOutlined,
+  CompassOutlined,
   BarChartOutlined,
   ShopOutlined,
   StarOutlined,
+  TeamOutlined,
+  QrcodeOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
@@ -62,6 +63,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         label: 'Đánh giá',
       },
       {
+        key: 'tours',
+        icon: <CompassOutlined />,
+        label: 'Quản lý Tour',
+      },
+      {
         key: 'narration',
         icon: <TranslationOutlined />,
         label: 'Lịch sử thuyết minh',
@@ -70,10 +76,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
     // Admin-only items
     if (isAdmin()) {
-      baseItems.splice(2, 0, {
-        key: 'approval',
-        icon: <CheckCircleOutlined />,
-        label: 'Phê duyệt nội dung',
+      baseItems.push({
+        key: 'users',
+        icon: <TeamOutlined />,
+        label: 'Quản lý người dùng',
       });
       baseItems.push({
         key: 'analytics',
@@ -81,9 +87,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         label: 'Phân tích & Thống kê',
       });
       baseItems.push({
-        key: 'tts',
-        icon: <SoundOutlined />,
-        label: 'TTS Generator',
+        key: 'app-download',
+        icon: <QrcodeOutlined />,
+        label: 'Tải App (QR)',
+      });
+      baseItems.push({
+        key: 'settings',
+        icon: <SettingOutlined />,
+        label: 'Cấu hình hệ thống',
       });
     }
 

@@ -14,6 +14,10 @@ import ApprovalManagement from './pages/ApprovalManagement';
 import Analytics from './pages/Analytics';
 import MenuManagement from './pages/MenuManagement';
 import ReviewManagement from './pages/ReviewManagement';
+import SystemSettings from './pages/SystemSettings';
+import TourManagement from './pages/TourManagement';
+import UserManagement from './pages/UserManagement';
+import AppDownload from './pages/AppDownload';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -124,7 +128,51 @@ function App() {
                 }
               />
 
-              {/* Default redirect */}
+              <Route
+              path="/tours"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <TourManagement />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MainLayout>
+                    <UserManagement />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MainLayout>
+                    <SystemSettings />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/app-download"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MainLayout>
+                    <AppDownload />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Default redirect */}
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

@@ -90,7 +90,11 @@ export default function MenuManagement() {
       title: 'Hình ảnh',
       dataIndex: 'imageUrl',
       width: 80,
-      render: (url: string) => url ? <Image src={url} width={50} height={50} style={{ objectFit: 'cover', borderRadius: 6 }} /> : <ShopOutlined style={{ fontSize: 32, color: '#ccc' }} />,
+      render: (url: string) => {
+        const isValid = url && !url.includes('via.placeholder.com') && !url.includes('th.bing.com');
+        const cleanUrl = url?.startsWith('data:image') ? url.replace(/\\s+/g, '') : url;
+        return isValid ? <Image src={cleanUrl} width={50} height={50} style={{ objectFit: 'cover', borderRadius: 6 }} fallback="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+" /> : <ShopOutlined style={{ fontSize: 32, color: '#ccc' }} />;
+      },
     },
     { title: 'Tên món', dataIndex: 'name', sorter: (a: MenuItem, b: MenuItem) => a.name.localeCompare(b.name) },
     { title: 'Mô tả', dataIndex: 'description', ellipsis: true },

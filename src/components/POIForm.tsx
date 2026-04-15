@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { Form, Input, InputNumber, Button, message, Select, Space, Divider } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -31,7 +32,7 @@ const MapClickHandler = ({ onLocationSelect }: { onLocationSelect: (lat: number,
 };
 
 // Component to fix map render issue inside Ant Design modal
-const MapUpdater = () => {
+const MapUpdater = ({ center }: { center: [number, number] | null }) => {
   const map = useMap();
   useEffect(() => {
     // Wait for modal animation to semi-finish before invalidating size
@@ -40,6 +41,12 @@ const MapUpdater = () => {
     }, 250);
     return () => clearTimeout(timer);
   }, [map]);
+
+  useEffect(() => {
+    if (center) {
+      map.flyTo(center, map.getZoom());
+    }
+  }, [center, map]);
   return null;
 };
 
@@ -53,6 +60,8 @@ const { TextArea } = Input;
 const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const [loading, setLoading] = useState(false);
   const [position, setPosition] = useState<[number, number] | null>(
     initialValues ? [initialValues.latitude, initialValues.longitude] : [10.762622, 106.700172] // Default: Vĩnh Khánh, Q4, TPHCM
@@ -83,20 +92,26 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
       queryClient.invalidateQueries({ queryKey: ['pois'] });
       onClose();
     },
-    onError: () => {
-      message.error('Tạo POI thất bại');
+    onError: (error: any) => {
+      const serverMsg = error?.response?.data?.error;
+      message.error(serverMsg || 'Tạo POI thất bại');
+      console.error('Create POI error details:', error?.response?.data);
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdatePOI }) => poiApi.update(id, data),
     onSuccess: () => {
-      message.success('Cập nhật POI thành công');
+      if (isAdmin) {
+        message.success('Cập nhật POI thành công');
+      } else {
+        message.success('Đã gửi cập nhật! Vui lòng chờ Admin duyệt trước khi hiển thị.');
+      }
       queryClient.invalidateQueries({ queryKey: ['pois'] });
       onClose();
     },
-    onError: () => {
-      message.error('Cập nhật POI thất bại');
+    onError: (error: any) => {
+      message.error(error?.response?.data?.error || 'Cập nhật POI thất bại');
     },
   });
 
@@ -113,7 +128,7 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
           radiusMeters: values.radiusMeters,
           priority: values.priority,
           imageUrl: values.imageUrl,
-          status: values.status,
+          status: values.status || initialValues.status || 'Pending',
         };
         await updateMutation.mutateAsync({ id: initialValues.id, data: updateData });
       } else {
@@ -184,6 +199,31 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
       </Form.Item>
 
       <Form.Item label="Chọn vị trí trên bản đồ">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+            <Button 
+              icon={<PlusOutlined />} 
+              onClick={() => {
+                if (navigator.geolocation) {
+                  message.loading({ content: 'Đang lấy vị trí...', key: 'location' });
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                      const { latitude, longitude } = pos.coords;
+                      handleLocationSelect(Number(latitude.toFixed(6)), Number(longitude.toFixed(6)));
+                      message.success({ content: 'Đã lấy được vị trí!', key: 'location' });
+                    },
+                    (err) => {
+                      message.error({ content: 'Không thể lấy vị trí: ' + err.message, key: 'location' });
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                  );
+                } else {
+                  message.error('Trình duyệt không hỗ trợ định vị');
+                }
+              }}
+            >
+              Dùng vị trí hiện tại của tôi
+            </Button>
+        </div>
         <div style={{ height: '300px', width: '100%', marginBottom: '16px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #d9d9d9' }}>
           <MapContainer
             center={position || [10.762622, 106.700172]}
@@ -194,7 +234,7 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
               attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <MapUpdater />
+            <MapUpdater center={position} />
             {position && <Marker position={position} />}
             <MapClickHandler onLocationSelect={handleLocationSelect} />
           </MapContainer>
@@ -269,16 +309,18 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
         </Form.Item>
       </Space>
 
-      <Form.Item
-        name="status"
-        label="Trạng thái"
-        rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
-      >
-        <Select>
-          <Select.Option value="Active">Active</Select.Option>
-          <Select.Option value="Inactive">Inactive</Select.Option>
-        </Select>
-      </Form.Item>
+      {isAdmin && (
+        <Form.Item
+          name="status"
+          label="Trạng thái"
+          rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
+        >
+          <Select>
+            <Select.Option value="Active">Active</Select.Option>
+            <Select.Option value="Inactive">Inactive</Select.Option>
+          </Select>
+        </Form.Item>
+      )}
 
       {!initialValues && (
         <>

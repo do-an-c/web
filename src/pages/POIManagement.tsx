@@ -5,11 +5,22 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { poiApi } from '../services/api';
 import type { POI } from '../types';
 import POIForm from '../components/POIForm.tsx';
+import { useAuth } from '../contexts/AuthContext';
+const DATA_URL_FALLBACK = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+';
+
+const getValidImageUrl = (url?: string) => {
+  if (!url) return null;
+  if (url.includes('via.placeholder.com') || url.includes('th.bing.com')) return null;
+  if (url.startsWith('data:image')) return url.replace(/\s+/g, '');
+  return url;
+};
 
 const { Search } = Input;
 
 const POIManagement: React.FC = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPOI, setEditingPOI] = useState<POI | null>(null);
   const [viewingPOI, setViewingPOI] = useState<POI | null>(null);
@@ -121,8 +132,10 @@ const POIManagement: React.FC = () => {
       dataIndex: 'imageUrl',
       key: 'imageUrl',
       width: 100,
-      render: (imageUrl: string) => 
-        imageUrl ? <Image src={imageUrl} width={60} height={60} style={{ objectFit: 'cover', borderRadius: '4px' }} /> : <div style={{ width: 60, height: 60, background: '#f0f0f0', borderRadius: '4px' }} />
+      render: (imageUrl: string) => {
+        const cleanUrl = getValidImageUrl(imageUrl);
+        return cleanUrl ? <Image src={cleanUrl} fallback={DATA_URL_FALLBACK} width={60} height={60} style={{ objectFit: 'cover', borderRadius: '4px' }} /> : <div style={{ width: 60, height: 60, background: '#f0f0f0', borderRadius: '4px' }} />;
+      }
     },
     {
       title: 'Tên',
@@ -193,7 +206,7 @@ const POIManagement: React.FC = () => {
           <Button type="link" icon={<EyeOutlined />} onClick={() => handleView(record)}>
             Xem
           </Button>
-          {record.status === 'Pending' ? (
+          {isAdmin && record.status === 'Pending' ? (
             <>
               <Button 
                 type="link" 
@@ -280,7 +293,7 @@ const POIManagement: React.FC = () => {
         title={editingPOI ? 'Chỉnh sửa POI' : 'Thêm POI mới'}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
-        destroyOnClose
+        destroyOnHidden
         footer={null}
         width={800}
       >
@@ -299,9 +312,9 @@ const POIManagement: React.FC = () => {
       >
         {viewingPOI && (
           <div>
-            {viewingPOI.imageUrl && (
-              <Image src={viewingPOI.imageUrl} width="100%" style={{ marginBottom: '16px', borderRadius: '8px' }} />
-            )}
+            <div style={{ textAlign: 'center' }}>
+              <Image src={getValidImageUrl(viewingPOI.imageUrl) || DATA_URL_FALLBACK} fallback={DATA_URL_FALLBACK} width="100%" style={{ marginBottom: '16px', borderRadius: '8px' }} />
+            </div>
             <p><strong>Tên:</strong> {viewingPOI.name}</p>
             <p><strong>Mô tả:</strong> {viewingPOI.description}</p>
             <p><strong>Vị trí:</strong> Lat: {viewingPOI.latitude}, Lng: {viewingPOI.longitude}</p>

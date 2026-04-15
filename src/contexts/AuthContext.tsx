@@ -39,18 +39,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load token from localStorage on mount
+  // Load token from localStorage on mount, then refresh from server
   useEffect(() => {
-    const savedToken = localStorage.getItem('authToken');
-    const savedUser = localStorage.getItem('authUser');
+    const loadSession = async () => {
+      const savedToken = localStorage.getItem('authToken');
+      const savedUser = localStorage.getItem('authUser');
 
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-      // Set token in API client
-      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
-    }
-    setIsLoading(false);
+      if (savedToken && savedUser) {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+        // Set token in API client
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+
+        // Refresh user data from server to fix stale/encoding issues
+        try {
+          const res = await axiosInstance.get('/Auth/me');
+          if (res.data) {
+            const freshUser: User = {
+              username: res.data.username,
+              email: res.data.email,
+              fullName: res.data.fullName,
+              role: res.data.role
+            };
+            setUser(freshUser);
+            localStorage.setItem('authUser', JSON.stringify(freshUser));
+          }
+        } catch {
+          // Token may be expired, clear session
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('authUser');
+          setToken(null);
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+    };
+    loadSession();
   }, []);
 
   const login = async (username: string, password: string): Promise<void> => {

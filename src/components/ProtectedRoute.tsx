@@ -22,7 +22,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         alignItems: 'center', 
         height: '100vh' 
       }}>
-        <Spin size="large" tip="Đang tải..." />
+        <Spin size="large" tip="Đang tải...">
+          <div style={{ padding: '20px' }} />
+        </Spin>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Card, Statistic, Row, Col, Table, DatePicker, Space, Typography, Spin, Empty } from 'antd';
+import { Card, Statistic, Row, Col, Table, DatePicker, Space, Typography, Spin, Empty, Badge } from 'antd';
 import { EyeOutlined, EnvironmentOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
 import HeatmapLayer from '../components/HeatmapLayer';
@@ -16,6 +16,7 @@ interface AnalyticsSummary {
   uniquePOIs: number;
   uniqueUsers: number;
   averageDurationSeconds: number;
+  activeOnlineUsers: number;
   topPOIs: POIStats[];
 }
 
@@ -137,6 +138,18 @@ const Analytics = () => {
           </Space>
         </Card>
 
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          <Col span={24}>
+            <Card loading={isLoading} style={{ background: '#f6ffed', borderColor: '#b7eb8f' }}>
+              <Statistic
+                title={<Badge status="processing" text="Người dùng đang online (Realtime)" />}
+                value={summary?.activeOnlineUsers || 0}
+                valueStyle={{ color: '#52c41a', fontSize: '2rem', fontWeight: 'bold' }}
+              />
+            </Card>
+          </Col>
+        </Row>
+        
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} lg={6}>
             <Card loading={isLoading}>
@@ -201,7 +214,9 @@ const Analytics = () => {
           <div style={{ height: '500px', borderRadius: '8px', overflow: 'hidden' }}>
             {heatmapLoading ? (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                <Spin size="large" tip="Đang tải dữ liệu heatmap..." />
+                <Spin size="large" tip="Đang tải dữ liệu heatmap...">
+                  <div style={{ height: '400px' }} />
+                </Spin>
               </div>
             ) : (
               <MapContainer

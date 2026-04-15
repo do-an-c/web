@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { POI, CreatePOI, UpdatePOI, Narration, LocationUpdate, MenuItem, CreateMenuItem, Review, CreateReview } from '../types';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+export const API_BASE_URL = 'https://vinhkhanh-api-2026-dwffczfxgkcdbvf0.eastasia-01.azurewebsites.net/api';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -137,6 +137,25 @@ export const reviewApi = {
   delete: (id: number) => axiosInstance.delete(`/reviews/${id}`),
   
   getSummary: (poiId: number) => axiosInstance.get(`/pois/${poiId}/reviews/summary`),
+};
+
+// User Management API (Admin only)
+export const userApi = {
+  getAll: () => axiosInstance.get('/Users'),
+
+  getById: (id: number) => axiosInstance.get(`/Users/${id}`),
+
+  toggleStatus: (id: number) => axiosInstance.put(`/Users/${id}/status`),
+
+  updateRole: (id: number, role: string) => axiosInstance.put(`/Users/${id}/role`, { role }),
+
+  delete: (id: number) => axiosInstance.delete(`/Users/${id}`),
+};
+
+// Auth API
+export const authApi = {
+  register: (data: { username: string; password: string; email: string; fullName: string; phoneNumber?: string; role: string }) =>
+    axiosInstance.post('/Auth/register', data),
 };
 
 export default axiosInstance;
