@@ -116,3 +116,37 @@ export interface CreateReview {
   rating: number;
   comment?: string;
 }
+
+export interface TourStop {
+  id: number;
+  order: number;
+  customDescription?: string;
+  poi?: POI;
+}
+
+export interface Tour {
+  id: number;
+  name: string;
+  description: string;
+  imageUrl?: string;
+  durationMinutes: number;
+  distanceKm: number;
+  status: string;
+  stopCount: number;
+  stops: TourStop[];
+}
+
+export interface TourStopRequest {
+  poiId: number;
+  order: number;
+  customDescription?: string;
+}
+
+export interface CreateTourRequest {
+  name: string;
+  description: string;
+  imageUrl?: string;
+  durationMinutes: number;
+  distanceKm: number;
+  stops?: TourStopRequest[];
+}

@@ -63,11 +63,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         label: 'Đánh giá',
       },
       {
-        key: 'tours',
-        icon: <CompassOutlined />,
-        label: 'Quản lý Tour',
-      },
-      {
         key: 'narration',
         icon: <TranslationOutlined />,
         label: 'Lịch sử thuyết minh',
@@ -76,6 +71,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
     // Admin-only items
     if (isAdmin()) {
+      baseItems.push({
+        key: 'tours',
+        icon: <CompassOutlined />,
+        label: 'Quản lý Tour',
+      });
       baseItems.push({
         key: 'users',
         icon: <TeamOutlined />,

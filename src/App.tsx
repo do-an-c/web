@@ -131,7 +131,7 @@ function App() {
               <Route
               path="/tours"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requireAdmin>
                   <MainLayout>
                     <TourManagement />
                   </MainLayout>

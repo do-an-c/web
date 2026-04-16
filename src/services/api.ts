@@ -158,4 +158,13 @@ export const authApi = {
     axiosInstance.post('/Auth/register', data),
 };
 
+// Tour API
+export const tourApi = {
+  getAll: () => axiosInstance.get<import('../types').Tour[]>('/Tours'),
+  getById: (id: number) => axiosInstance.get<import('../types').Tour>(`/Tours/${id}`),
+  create: (data: import('../types').CreateTourRequest) => axiosInstance.post<import('../types').Tour>('/Tours', data),
+  update: (id: number, data: import('../types').CreateTourRequest) => axiosInstance.put(`/Tours/${id}`, data),
+  delete: (id: number) => axiosInstance.delete(`/Tours/${id}`),
+};
+
 export default axiosInstance;
