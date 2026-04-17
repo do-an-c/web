@@ -187,14 +187,18 @@ const POIManagement: React.FC = () => {
         let color = 'default';
         if (status === 'Active') color = 'green';
         else if (status === 'Pending') color = 'orange';
+        else if (status === 'PendingDelete') color = 'volcano';
         else if (status === 'Rejected') color = 'red';
-        else if (status === 'Deleted') color = 'volcano';
+        else if (status === 'Deleted') color = 'gray';
         
-        return (
-          <Tag color={color}>
-            {status}
-          </Tag>
-        );
+        const labelMap: Record<string, string> = {
+          Active: 'Active',
+          Pending: 'Chờ duyệt',
+          PendingDelete: '⏳ Chờ duyệt xóa',
+          Rejected: 'Từ chối',
+          Deleted: 'Đã xóa',
+        };
+        return <Tag color={color}>{labelMap[status] || status}</Tag>;
       },
     },
     {
@@ -206,15 +210,15 @@ const POIManagement: React.FC = () => {
           <Button type="link" icon={<EyeOutlined />} onClick={() => handleView(record)}>
             Xem
           </Button>
-          {isAdmin && record.status === 'Pending' ? (
+          {isAdmin && (record.status === 'Pending' || record.status === 'PendingDelete') ? (
             <>
               <Button 
                 type="link" 
                 icon={<CheckCircleOutlined />} 
                 onClick={() => handleApprove(record.id, record.name)}
-                style={{ color: '#52c41a' }}
+                style={{ color: record.status === 'PendingDelete' ? '#ff4d4f' : '#52c41a' }}
               >
-                Duyệt
+                {record.status === 'PendingDelete' ? 'Duyệt xóa' : 'Duyệt'}
               </Button>
               <Button 
                 type="link" 
@@ -264,7 +268,8 @@ const POIManagement: React.FC = () => {
           options={[
             { value: 'All', label: '📋 Tất cả POI' },
             { value: 'Active', label: '✅ POI đã duyệt' },
-            { value: 'Pending', label: '⏳ POI chờ duyệt' },
+            { value: 'Pending', label: '⏳ Chờ duyệt đăng' },
+            { value: 'PendingDelete', label: '🗑️ Chờ duyệt xóa' },
             { value: 'Rejected', label: '❌ POI bị từ chối' },
           ]}
         />
