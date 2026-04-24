@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { POI, CreatePOI, UpdatePOI, Narration, LocationUpdate, MenuItem, CreateMenuItem, Review, CreateReview } from '../types';
 
-export const API_BASE_URL = 'https://vinhkhanh-api-2026-dwffczfxgkcdbvf0.eastasia-01.azurewebsites.net/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://vinhkhanh-api-2026-dwffczfxgkcdbvf0.eastasia-01.azurewebsites.net/api';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
