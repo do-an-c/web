@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { Card, Statistic, Row, Col, Table, DatePicker, Space, Typography, Spin, Empty, Badge } from 'antd';
-import { EyeOutlined, EnvironmentOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
+import { Card, Statistic, Row, Col, Table, DatePicker, Space, Typography, Spin, Empty, Badge, Segmented } from 'antd';
+import { EyeOutlined, EnvironmentOutlined, UserOutlined, ClockCircleOutlined, FireOutlined, HistoryOutlined } from '@ant-design/icons';
+import { MapContainer, TileLayer, CircleMarker, Tooltip, Marker } from 'react-leaflet';
+import L from 'leaflet';
 import HeatmapLayer from '../components/HeatmapLayer';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
@@ -10,6 +11,12 @@ import 'leaflet/dist/leaflet.css';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
+
+const onlineUserIcon = L.divIcon({
+  className: 'pulse-marker',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
 
 interface AnalyticsSummary {
   totalNarrations: number;
@@ -47,6 +54,8 @@ const Analytics = () => {
     dayjs()
   ]);
 
+  const [heatmapMode, setHeatmapMode] = useState<'realtime' | 'historical'>('realtime');
+
   const { data: summary, isLoading } = useQuery({
     queryKey: ['analytics-summary', dateRange],
     queryFn: async () => {
@@ -61,16 +70,19 @@ const Analytics = () => {
   });
 
   const { data: heatmapData, isLoading: heatmapLoading } = useQuery({
-    queryKey: ['analytics-heatmap', dateRange],
+    queryKey: ['analytics-heatmap', dateRange, heatmapMode],
     queryFn: async () => {
-      const response = await api.get<HeatmapPoint[]>('/Analytics/heatmap', {
-        params: {
-          startDate: dateRange[0].toISOString(),
-          endDate: dateRange[1].toISOString()
-        }
-      });
+      const params: any = { isRealtime: heatmapMode === 'realtime' };
+      if (heatmapMode === 'historical') {
+        params.startDate = dateRange[0].toISOString();
+        params.endDate = dateRange[1].toISOString();
+      }
+      
+      const response = await api.get<HeatmapPoint[]>('/Analytics/heatmap', { params });
       return response.data;
-    }
+    },
+    // Auto refresh every 5 seconds if in realtime mode
+    refetchInterval: heatmapMode === 'realtime' ? 5000 : false
   });
 
   const { data: pois } = useQuery({
@@ -208,7 +220,19 @@ const Analytics = () => {
 
         {/* Heatmap Section */}
         <Card
-          title="📍 Bản đồ nhiệt (Heatmap) — Vị trí người nghe thuyết minh"
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>📍 Bản đồ nhiệt (Heatmap)</span>
+              <Segmented
+                options={[
+                  { label: <span><FireOutlined /> Real-time</span>, value: 'realtime' },
+                  { label: <span><HistoryOutlined /> Phân tích đường đi</span>, value: 'historical' },
+                ]}
+                value={heatmapMode}
+                onChange={(val) => setHeatmapMode(val as 'realtime' | 'historical')}
+              />
+            </div>
+          }
           loading={heatmapLoading}
         >
           <div style={{ height: '500px', borderRadius: '8px', overflow: 'hidden' }}>
@@ -232,7 +256,7 @@ const Analytics = () => {
 
                 {/* Heatmap layer */}
                 {heatmapData && heatmapData.length > 0 && (
-                  <HeatmapLayer points={heatmapData} />
+                  <HeatmapLayer points={heatmapData} fitBounds={heatmapMode === 'historical'} />
                 )}
 
                 {/* POI markers */}
@@ -252,6 +276,19 @@ const Analytics = () => {
                       <strong>{poi.name}</strong>
                     </Tooltip>
                   </CircleMarker>
+                ))}
+
+                {/* Real-time Online Users Markers (Rendered last to appear on top) */}
+                {heatmapMode === 'realtime' && heatmapData && heatmapData.map((pt, idx) => (
+                  <Marker
+                    key={`online-user-${idx}`}
+                    position={[pt.latitude, pt.longitude]}
+                    icon={onlineUserIcon}
+                  >
+                    <Tooltip>
+                      <strong>Người dùng đang online</strong>
+                    </Tooltip>
+                  </Marker>
                 ))}
               </MapContainer>
             )}
@@ -290,6 +327,11 @@ const Analytics = () => {
             <span style={{ fontSize: '12px', color: '#aaa', marginLeft: '8px' }}>
               | 🔶 = Vị trí POI
             </span>
+            {heatmapMode === 'realtime' && (
+              <span style={{ fontSize: '12px', color: '#aaa', marginLeft: '8px' }}>
+                | 🔵 = Người dùng Online
+              </span>
+            )}
           </div>
 
           {(!heatmapData || heatmapData.length === 0) && !heatmapLoading && (

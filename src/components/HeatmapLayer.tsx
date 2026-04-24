@@ -26,9 +26,10 @@ interface HeatmapPoint {
 
 interface HeatmapLayerProps {
     points: HeatmapPoint[];
+    fitBounds?: boolean;
 }
 
-const HeatmapLayer = ({ points }: HeatmapLayerProps) => {
+const HeatmapLayer = ({ points, fitBounds = true }: HeatmapLayerProps) => {
     const map = useMap();
 
     useEffect(() => {
@@ -57,7 +58,7 @@ const HeatmapLayer = ({ points }: HeatmapLayerProps) => {
         heat.addTo(map);
 
         // Fit bounds to show all points
-        if (heatData.length > 0) {
+        if (fitBounds && heatData.length > 0) {
             const bounds = L.latLngBounds(heatData.map(([lat, lng]) => [lat, lng]));
             map.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
         }
@@ -65,7 +66,7 @@ const HeatmapLayer = ({ points }: HeatmapLayerProps) => {
         return () => {
             map.removeLayer(heat);
         };
-    }, [points, map]);
+    }, [points, map, fitBounds]);
 
     return null;
 };

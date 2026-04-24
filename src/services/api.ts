@@ -149,6 +149,9 @@ export const userApi = {
 
   updateRole: (id: number, role: string) => axiosInstance.put(`/Users/${id}/role`, { role }),
 
+  updateTier: (id: number, tier: string, expiresAt?: string | null) =>
+    axiosInstance.put(`/Users/${id}/tier`, { tier, expiresAt: expiresAt ?? null }),
+
   delete: (id: number) => axiosInstance.delete(`/Users/${id}`),
 };
 

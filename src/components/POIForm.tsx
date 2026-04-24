@@ -126,7 +126,7 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
           latitude: values.latitude,
           longitude: values.longitude,
           radiusMeters: values.radiusMeters,
-          priority: values.priority,
+          priority: isAdmin && values.priority !== undefined ? values.priority : (initialValues.priority || 5),
           imageUrl: values.imageUrl,
           status: values.status || initialValues.status || 'Pending',
         };
@@ -139,7 +139,7 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
           latitude: values.latitude,
           longitude: values.longitude,
           radiusMeters: values.radiusMeters || 50,
-          priority: values.priority || 5,
+          priority: isAdmin && values.priority !== undefined ? values.priority : 0,
           imageUrl: values.imageUrl,
           translations: values.translations || [],
         };
@@ -160,7 +160,6 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
       onFinish={handleSubmit}
       initialValues={initialValues || {
         radiusMeters: 50,
-        priority: 5,
         status: 'Active',
       }}
     >
@@ -281,7 +280,7 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
         </Form.Item>
       </Space>
 
-      <Space style={{ width: '100%' }} size="large">
+      <Space style={{ width: '100%' }} size="large" wrap>
         <Form.Item
           name="radiusMeters"
           label="Bán kính kích hoạt (mét)"
@@ -295,18 +294,20 @@ const POIForm: React.FC<POIFormProps> = ({ initialValues, onClose }) => {
           />
         </Form.Item>
 
-        <Form.Item
-          name="priority"
-          label="Độ ưu tiên (1-10)"
-          rules={[{ required: true, message: 'Vui lòng nhập độ ưu tiên' }]}
-        >
-          <InputNumber
-            style={{ width: '200px' }}
-            min={1}
-            max={10}
-            placeholder="5"
-          />
-        </Form.Item>
+        {isAdmin && (
+          <Form.Item
+            name="priority"
+            label="Độ ưu tiên (Priority)"
+            tooltip="Mặc định: 5. Số càng lớn càng ưu tiên phát âm thanh trước."
+          >
+            <InputNumber
+              style={{ width: '200px' }}
+              min={0}
+              max={100}
+              placeholder="VD: 10 (để ưu tiên cao hơn)"
+            />
+          </Form.Item>
+        )}
       </Space>
 
       {isAdmin && (
