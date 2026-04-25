@@ -123,7 +123,7 @@ const Analytics = () => {
       title: 'Lần cuối',
       dataIndex: 'lastPlayedAt',
       key: 'lastPlayed',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY HH:mm')
+      render: (date: string) => dayjs(date.endsWith('Z') ? date : date + 'Z').format('DD/MM/YYYY HH:mm')
     }
   ];
 
