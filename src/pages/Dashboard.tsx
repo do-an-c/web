@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
       <h1>Dashboard - Vinh Khanh Food Street Admin</h1>
       
       <Row gutter={16} style={{ marginTop: '24px' }}>
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic
               title="Tổng số POI"
@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
         
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic
               title="POI Đang hoạt động"
@@ -46,7 +46,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
         
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic
               title="Tổng bản dịch"
@@ -58,17 +58,6 @@ const Dashboard: React.FC = () => {
             <div style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
               {poisWithTranslations}/{totalPOIs} POI có nội dung
             </div>
-          </Card>
-        </Col>
-        
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Lượt xem trung bình"
-              value={totalPOIs > 0 ? Math.round(totalViews / totalPOIs) : 0}
-              prefix={<EyeOutlined />}
-              styles={{ content: { color: '#faad14' } }}
-            />
           </Card>
         </Col>
       </Row>
