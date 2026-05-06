@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Col, Row, Statistic } from 'antd';
-import { EnvironmentOutlined, SoundOutlined, EyeOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { EnvironmentOutlined, SoundOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { poiApi } from '../services/api';
 
@@ -15,7 +15,6 @@ const Dashboard: React.FC = () => {
 
   const totalPOIs = pois?.length || 0;
   const activePOIs = pois?.filter(poi => poi.status === 'Active').length || 0;
-  const totalViews = pois?.reduce((sum, poi) => sum + poi.viewCount, 0) || 0;
   const totalTranslations = pois?.reduce((sum, poi) => sum + (poi.translations?.length || 0), 0) || 0;
   const poisWithTranslations = pois?.filter(poi => poi.translations && poi.translations.length > 0).length || 0;
 
