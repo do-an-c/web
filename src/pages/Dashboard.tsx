@@ -8,7 +8,7 @@ const Dashboard: React.FC = () => {
   const { data: pois } = useQuery({
     queryKey: ['pois'],
     queryFn: async () => {
-      const response = await poiApi.getAll();
+      const response = await poiApi.getAll('All');
       return response.data;
     },
   });
