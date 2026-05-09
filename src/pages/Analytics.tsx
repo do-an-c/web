@@ -20,7 +20,7 @@ const onlineUserIcon = L.divIcon({
 
 interface AnalyticsSummary {
   totalNarrations: number;
-  uniquePOIs: number;
+  totalPOIs: number;
   uniqueUsers: number;
   averageDurationSeconds: number;
   activeOnlineUsers: number;
@@ -176,8 +176,8 @@ const Analytics = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card loading={isLoading}>
               <Statistic
-                title="Số POI được nghe"
-                value={summary?.uniquePOIs || 0}
+                title="Tổng số POI"
+                value={summary?.totalPOIs || 0}
                 prefix={<EnvironmentOutlined />}
                 valueStyle={{ color: '#1890ff' }}
               />
