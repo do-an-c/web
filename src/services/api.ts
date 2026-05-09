@@ -170,4 +170,10 @@ export const tourApi = {
   delete: (id: number) => axiosInstance.delete(`/Tours/${id}`),
 };
 
+// System Settings API
+export const settingsApi = {
+  get: () => axiosInstance.get('/Settings'),
+  update: (data: any) => axiosInstance.put('/Settings', data),
+};
+
 export default axiosInstance;

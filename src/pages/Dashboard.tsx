@@ -6,7 +6,7 @@ import { poiApi } from '../services/api';
 
 const Dashboard: React.FC = () => {
   const { data: pois } = useQuery({
-    queryKey: ['pois'],
+    queryKey: ['pois', 'All'],
     queryFn: async () => {
       const response = await poiApi.getAll('All');
       return response.data;

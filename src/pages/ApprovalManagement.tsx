@@ -16,9 +16,9 @@ const ApprovalManagement: React.FC = () => {
 
   // ── Fetch ALL POIs (admin sees all statuses) ──────────────────────────────
   const { data: allPois = [], isLoading: poisLoading } = useQuery({
-    queryKey: ['pois-all'],
+    queryKey: ['pois-all', 'All'],
     queryFn: async () => {
-      const response = await poiApi.getAll();
+      const response = await poiApi.getAll('All');
       return response.data;
     },
   });
@@ -28,9 +28,9 @@ const ApprovalManagement: React.FC = () => {
 
   // ── Fetch pending translations ────────────────────────────────────────────
   const { data: pois = [], isLoading: translationsLoading } = useQuery({
-    queryKey: ['pois'],
+    queryKey: ['pois', 'All'],
     queryFn: async () => {
-      const response = await poiApi.getAll();
+      const response = await poiApi.getAll('All');
       return response.data;
     },
   });

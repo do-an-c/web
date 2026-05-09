@@ -1,21 +1,68 @@
-import React from 'react';
-import { Card, Form, InputNumber, Button, Select, Slider, Switch, message, Divider, Space, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Form, InputNumber, Button, Select, Slider, Switch, message, Divider, Space, Typography, Spin } from 'antd';
 import { SaveOutlined, ReloadOutlined } from '@ant-design/icons';
+import { settingsApi } from '../services/api';
 
 const { Title, Text } = Typography;
 
+const defaultSettings = {
+  geofenceRadius: 20,
+  maxRadiusLimit: 100,
+  antiSpamCooldown: 10,
+  defaultLanguage: 'vi',
+  audioCacheLimit: 50,
+  enableDebugMode: false
+};
+
 const SystemSettings: React.FC = () => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const handleFinish = (values: any) => {
-    console.log('Settings saved:', values);
-    message.success('Đã lưu cấu hình hệ thống thành công. Hành vi trên Mobile App sẽ được cập nhật!');
+  // Load settings from backend on mount
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      const response = await settingsApi.get();
+      form.setFieldsValue(response.data);
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+      message.warning('Không thể tải cấu hình từ server. Sử dụng giá trị mặc định.');
+      form.setFieldsValue(defaultSettings);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFinish = async (values: any) => {
+    try {
+      setSaving(true);
+      await settingsApi.update(values);
+      message.success('Đã lưu cấu hình hệ thống thành công. Hành vi trên Mobile App sẽ được cập nhật!');
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      message.error('Lưu cấu hình thất bại. Vui lòng thử lại.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleReset = () => {
-    form.resetFields();
-    message.info('Đã khôi phục cài đặt gốc');
+    form.setFieldsValue(defaultSettings);
+    message.info('Đã khôi phục cài đặt gốc. Nhấn "Lưu thay đổi" để áp dụng.');
   };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+        <Spin size="large" tip="Đang tải cấu hình hệ thống..." />
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto' }}>
@@ -25,14 +72,7 @@ const SystemSettings: React.FC = () => {
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        initialValues={{
-          geofenceRadius: 20,
-          maxRadiusLimit: 100,
-          antiSpamCooldown: 10,
-          defaultLanguage: 'vi',
-          audioCacheLimit: 50,
-          enableDebugMode: false
-        }}
+        initialValues={defaultSettings}
       >
         <Card title="📍 Cấu hình Khu vực Phát hiện (Geofence Engine)" bordered={false} style={{ marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
           <Space size="large" style={{ display: 'flex' }}>
@@ -120,7 +160,7 @@ const SystemSettings: React.FC = () => {
             <Button icon={<ReloadOutlined />} onClick={handleReset}>
               Khôi phục mặc định
             </Button>
-            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} size="large">
+            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} size="large" loading={saving}>
               Lưu thay đổi hệ thống
             </Button>
           </Space>
