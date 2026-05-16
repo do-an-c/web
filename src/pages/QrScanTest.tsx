@@ -106,7 +106,7 @@ const QrScanTest: React.FC = () => {
       // B2: Get short info
       if (vResult.result === 0) {
         const encoded = encodeURIComponent(qrContent.trim());
-        const scanRes = await axios.get(`${API_BASE}/download/scan-info/${encoded}`);
+        const scanRes = await axios.get(`${API_BASE}/download/scan-info?qrContent=${encoded}`);
         setScanInfo(scanRes.data);
       }
     } catch (err: any) {
