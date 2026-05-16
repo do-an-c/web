@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Input, Button, Result, Tag, Typography, Space, Divider, Descriptions, Alert, Spin } from 'antd';
 import { QrcodeOutlined, CheckCircleOutlined, CloseCircleOutlined, ThunderboltOutlined, ReloadOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import * as signalR from '@microsoft/signalr';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -31,6 +32,57 @@ const QrScanTest: React.FC = () => {
   const [validateResult, setValidateResult] = useState<ValidateResult | null>(null);
   const [scanInfo, setScanInfo] = useState<ScanInfoResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Determine the base URL for SignalR (removing /api if present)
+    const hubUrl = API_BASE.replace('/api', '');
+    
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(`${hubUrl}/hubs/tracking`)
+      .withAutomaticReconnect()
+      .build();
+
+    connection.start()
+      .then(() => {
+        console.log('Connected to TrackingHub for QR Scans');
+        return connection.invoke('JoinAdminRoom');
+      })
+      .then(() => {
+        console.log('Joined admins room successfully');
+      })
+      .catch(err => console.error('SignalR Connection Error: ', err));
+
+    connection.on("ReceiveScanResult", (data: any) => {
+      console.log('Received real-time scan result:', data);
+      
+      // Auto-update the validate result
+      setValidateResult({
+        result: data.result,
+        strength: data.strength,
+        message: data.message,
+        downloadUrl: data.downloadUrl
+      });
+      
+      // Auto-update scan info (short format)
+      setScanInfo({
+        app: "VinhKhanhFoodStreet",
+        valid: data.result === 0,
+        result: data.result,
+        strength: data.strength,
+        action: data.result === 0 ? "TAI_APP" : "KHONG_HOP_LE",
+        downloadUrl: data.downloadUrl
+      });
+      
+      // Update UI with real-time feedback
+      const timestamp = new Date(data.timestamp).toLocaleTimeString();
+      setQrContent(`[AUTO-TRIGGER] Thiết bị vừa tải App lúc ${timestamp}`);
+      setError(null);
+    });
+
+    return () => {
+      connection.stop();
+    };
+  }, []);
 
   const handleScan = async () => {
     if (!qrContent.trim()) {
