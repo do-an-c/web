@@ -96,11 +96,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       //   icon: <QrcodeOutlined />,
       //   label: 'Kiểm tra QR (Mạnh/Yếu)',
       // });
-      baseItems.push({
-        key: 'settings',
-        icon: <SettingOutlined />,
-        label: 'Cấu hình hệ thống',
-      });
+      // baseItems.push({
+      //   key: 'settings',
+      //   icon: <SettingOutlined />,
+      //   label: 'Cấu hình hệ thống',
+      // });
     }
 
     return baseItems;
