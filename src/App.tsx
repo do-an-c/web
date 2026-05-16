@@ -18,6 +18,7 @@ import SystemSettings from './pages/SystemSettings';
 import TourManagement from './pages/TourManagement';
 import UserManagement from './pages/UserManagement';
 import AppDownload from './pages/AppDownload';
+import QrScanTest from './pages/QrScanTest';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -167,6 +168,17 @@ function App() {
                 <ProtectedRoute requireAdmin>
                   <MainLayout>
                     <AppDownload />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/qr-scan"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MainLayout>
+                    <QrScanTest />
                   </MainLayout>
                 </ProtectedRoute>
               }

@@ -92,6 +92,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         label: 'Tải App (QR)',
       });
       baseItems.push({
+        key: 'qr-scan',
+        icon: <QrcodeOutlined />,
+        label: 'Kiểm tra QR (Mạnh/Yếu)',
+      });
+      baseItems.push({
         key: 'settings',
         icon: <SettingOutlined />,
         label: 'Cấu hình hệ thống',
